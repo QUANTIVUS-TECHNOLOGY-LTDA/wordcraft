@@ -8,6 +8,8 @@
 pub mod backend;
 pub mod server;
 pub mod tools;
+// Quantivus guarded browser transport policy; the native server is unchanged.
+pub mod nexus;
 
 pub use backend::{Backend, Remote};
 pub use server::Server;

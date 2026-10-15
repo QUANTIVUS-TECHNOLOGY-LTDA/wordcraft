@@ -1,0 +1,61 @@
+name: Quantivus WordCraft compatibility
+
+on:
+  pull_request:
+  push:
+    branches: [main, feature/nexus-web-mcp-v1]
+  workflow_dispatch:
+    inputs:
+      check_upstream:
+        type: boolean
+        default: false
+        description: Check a temporary merge of the current upstream; never publish it
+  schedule:
+    - cron: '23 4,16 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quantivus-compat-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
+
+jobs:
+  compile-and-test:
+    if: github.repository == 'QUANTIVUS-TECHNOLOGY-LTDA/wordcraft'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      CARGO_TERM_COLOR: never
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4, verified ref
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Check an upstream candidate without changing any remote ref
+        if: github.event_name == 'schedule' || inputs.check_upstream == true
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags https://github.com/storytold/wordcraft.git main
+          printf 'Candidate upstream: %s\n' "$(git rev-parse FETCH_HEAD)" >> "$GITHUB_STEP_SUMMARY"
+          git -c user.name='Quantivus Compatibility Check' -c user.email='noreply@quantivus.io' merge --no-commit --no-ff FETCH_HEAD
+      - name: Install the pinned compiler and browser target
+        run: rustup toolchain install 1.99.0 --profile minimal --component rustfmt --component clippy --target wasm32-unknown-unknown
+      - name: Verify source formatting
+        run: cargo +1.99.0 fmt -p wordcraft-mcp -p wordcraft-web --check
+      - name: Test the real MCP dispatcher, guards, and native filesystem confinement
+        run: cargo +1.99.0 test -p wordcraft-mcp --locked
+      - name: Review the adapter with compiler lints
+        run: cargo +1.99.0 clippy -p wordcraft-mcp --all-targets --locked -- -D warnings
+      - name: Check the actual browser shell
+        run: cargo +1.99.0 check -p wordcraft-web --target wasm32-unknown-unknown --locked
+      - name: Build the WASM target
+        run: cargo +1.99.0 build -p wordcraft-web --target wasm32-unknown-unknown --locked
+      - name: Record the exact checked source and artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rev-parse HEAD >> "$GITHUB_STEP_SUMMARY"
+          sha256sum target/wasm32-unknown-unknown/debug/wordcraft-web.wasm >> "$GITHUB_STEP_SUMMARY"
+          printf '\nThis gate does not publish a release or certify a live Nexus browser round trip.\n' >> "$GITHUB_STEP_SUMMARY"
