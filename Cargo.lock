@@ -5319,6 +5319,7 @@ version = "0.7.0"
 dependencies = [
  "log",
  "serde_json",
+ "sha2",
  "wordcraft-control-key",
  "wordcraft-doc",
  "wordcraft-engine",
@@ -5418,6 +5419,7 @@ dependencies = [
  "wordcraft-doc",
  "wordcraft-engine",
  "wordcraft-fonts",
+ "wordcraft-mcp",
  "wordcraft-ui-egui",
 ]
 

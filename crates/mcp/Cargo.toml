@@ -14,4 +14,5 @@ wordcraft-engine = { workspace = true }
 wordcraft-render = { workspace = true }
 wordcraft-control-key = { workspace = true }
 serde_json = { workspace = true }
+sha2 = { workspace = true }
 log = { workspace = true }

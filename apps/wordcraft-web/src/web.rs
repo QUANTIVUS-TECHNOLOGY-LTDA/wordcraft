@@ -13,6 +13,8 @@ const DOC_EXTS: &[&str] = &["docx", "docm", "dotx", "dotm", "doc", "dot", "odt",
 const IMAGE_EXTS: &[&str] = &["png", "jpg", "jpeg", "gif", "webp", "bmp", "wmf", "emf"];
 const RECIPIENT_EXTS: &[&str] = wordcraft_engine::cmd::mailings::RECIPIENT_EXTENSIONS;
 mod font_store;
+// Quantivus same-visible-document bridge.
+mod nexus;
 const CANVAS_ID: &str = "wordcraft_canvas";
 const LOADING_ID: &str = "wordcraft_loading";
 
@@ -69,7 +71,14 @@ pub fn start() {
                     if !sample {
                         app.start_screen();
                     }
-                    Ok(Box::new(WebShell { app, inbox, messages }))
+                    let nexus = match nexus::NexusBridge::install(cc.egui_ctx.clone()) {
+                        Ok(bridge) => Some(bridge),
+                        Err(_) => {
+                            log::warn!("Quantivus Web bridge unavailable");
+                            None
+                        }
+                    };
+                    Ok(Box::new(WebShell { app, inbox, messages, nexus }))
                 }),
             )
             .await;
@@ -92,6 +101,7 @@ struct WebShell {
     app: WordApp,
     inbox: Inbox,
     messages: Rc<RefCell<Vec<String>>>,
+    nexus: Option<nexus::NexusBridge>,
 }
 
 impl eframe::App for WebShell {
@@ -116,6 +126,9 @@ impl eframe::App for WebShell {
             self.app.status(msg);
         }
         self.app.logic(ctx);
+        if let Some(bridge) = &mut self.nexus {
+            bridge.drain(&mut self.app, ctx);
+        }
     }
 
     fn raw_input_hook(&mut self, _ctx: &egui::Context, raw: &mut egui::RawInput) {

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "applicationId": "wordcraft",
+  "fork": "QUANTIVUS-TECHNOLOGY-LTDA/wordcraft",
+  "upstream": "storytold/wordcraft",
+  "upstreamCommit": "86adfd34eb2d3916a571e84b6605ec642e274440",
+  "bridgeVersion": 1,
+  "rustVersion": "1.99.0",
+  "facade": "QuantivusNexusWordCraftV1",
+  "target": "wasm32-unknown-unknown",
+  "publication": "requires-verified-browser-and-nexus-tests"
+}

@@ -1,13 +1,11 @@
-<p align="center">
-  <a href="https://getartcraft.com/">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="docs/brand/artcraft-logo-white.svg">
-      <img alt="ArtCraft" src="docs/brand/artcraft-logo.svg" width="200">
-    </picture>
-  </a>
-</p>
+# Quantivus Document Editor — WordCraft fork
 
-<h1 align="center">WordCraft</h1>
+Modified by Quantivus; based on WordCraft by the ArtCraft team. This is not an official ArtCraft build. The original code licenses and attribution remain in LICENSE-MIT, LICENSE-APACHE and NOTICE.
+
+See [the versioned browser bridge](docs/nexus-web-bridge.md) and the compatibility workflow.
+
+
+<h1 align="center">Quantivus Document Editor</h1>
 
 <p align="center">
   <b>Writing and document design; an open-source, clean-room reimplementation of Microsoft Word, rebuilt in pure Rust.</b>
